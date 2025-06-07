@@ -1,3 +1,3 @@
-module github.com/cokeBeer/execjs
+module execjs
 
 go 1.17
