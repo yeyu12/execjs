@@ -165,13 +165,19 @@ func (c *Context) exec_with_pipe(source string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
+	err = cmd.Start()
+	if err != nil {
+		return "", err
+	}
+
 	input := c.compile(source)
 	_, err = stdin.Write([]byte(input))
 	if err != nil {
 		return "", err
 	}
 	stdin.Close()
-	err = cmd.Run()
+	err = cmd.Wait()
 	outStr, errStr := string(stdout.Bytes()), string(stderr.Bytes())
 	if err != nil {
 		return errStr, err
