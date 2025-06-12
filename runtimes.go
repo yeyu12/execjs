@@ -22,10 +22,6 @@ type Tuple struct {
 
 var runtimes []Tuple
 
-func init() {
-	Register(Node, node())
-}
-
 func Register(name string, runtime RuntimeInterface) {
 	runtimes = append(runtimes, Tuple{Name: name, Runtime: runtime})
 }

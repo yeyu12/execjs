@@ -7,6 +7,8 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"path/filepath"
+	"runtime"
 	"strings"
 )
 
@@ -90,6 +92,7 @@ func (c *Context) Call(name string, args ...interface{}) (interface{}, error) {
 	if !c.Is_available() {
 		return "", RuntimeUnavailableError{Message: fmt.Sprintf("runtime is not available on this system")}
 	}
+
 	output, err := c.call(name, args...)
 	if err != nil {
 		return "", err
@@ -222,20 +225,38 @@ func which(command []string) []string {
 func find_executable(prog string) string {
 	pathlist := strings.Split(os.Getenv("PATH"), string(os.PathListSeparator))
 	filename := ""
+
 	for _, dir := range pathlist {
+		if dir == "" {
+			continue
+		}
+
 		filename = path.Join(dir, prog)
+		if runtime.GOOS == "windows" {
+			filename += ".exe"
+		}
 		info, err := os.Stat(filename)
 		if err != nil {
 			continue
 		}
-		if info.Mode()&0111 == 0111 {
-			break
+
+		if runtime.GOOS == "windows" {
+			ext := strings.ToLower(filepath.Ext(filename))
+			switch ext {
+			case ".exe", ".com", ".bat", ".cmd", ".ps1":
+				return filename
+			}
+		} else {
+			if info.Mode()&0111 == 0111 {
+				return filename
+			}
 		}
 	}
+
 	return filename
 }
 
-func node() *ExternalRuntime {
+func NodeCommand() *ExternalRuntime {
 	r := node_node()
 	if r.Is_available() {
 		return r

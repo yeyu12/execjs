@@ -1,3 +1,3 @@
 module github.com/yeyu12/execjs
 
-go 1.17
+go 1.20
